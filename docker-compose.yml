@@ -1,15 +1,47 @@
-version: '3.1'
+version: '3.8'
 services:
   stats-server:
+    build:
+      context: ./stats-service/stats-server
+      dockerfile: Dockerfile
+    container_name: stats-container
     ports:
       - "9090:9090"
+    environment:
+      - spring.datasource.url=jdbc:postgresql://stats-db:5432/ewmstats
+      - spring.datasource.user=ewmstatsadmin
+      - spring.datasource.password=!0230!
 
   stats-db:
     image: postgres:14-alpine
+    container_name: stats-db
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=ewmstats
+      - POSTGRES_USER=ewmstatsadmin
+      - POSTGRES_PASSWORD=!0230!
 
   ewm-service:
+    build:
+      context: ./ewm-service
+      dockerfile: Dockerfile
+    container_name: evm-service-container
     ports:
       - "8080:8080"
+    depends_on:
+      - ewm-db
+    environment:
+      - spring.datasource.url=jdbc:postgresql://ewm-db:5432/ewmservice
+      - spring.datasource.user=ewmserviceadmin
+      - spring.datasource.password=!1341!
 
   ewm-db:
     image: postgres:14-alpine
+    container_name: ewm-db
+    ports:
+      - "6542:5432"
+    environment:
+      - POSTGRES_DB=ewmservice
+      - POSTGRES_USER=ewmserviceadmin
+      - POSTGRES_PASSWORD=!1341!

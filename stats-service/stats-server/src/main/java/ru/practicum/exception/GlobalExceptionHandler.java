@@ -18,13 +18,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleRuntimeExceptions(RuntimeException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleOtherExceptions(Exception e) {
         log.warn(e.getMessage());
         return new ErrorResponse(e.getMessage());

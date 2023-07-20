@@ -4,7 +4,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Table(name = "hits")
@@ -31,20 +30,5 @@ public class EndpointHit {
                 ", ip='" + ip + '\'' +
                 ", time=" + time +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EndpointHit)) return false;
-        EndpointHit that = (EndpointHit) o;
-        return Objects.equals(getId(), that.getId())
-                && Objects.equals(getUri(), that.getUri())
-                && Objects.equals(getIp(), that.getIp());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getUri(), getIp());
     }
 }

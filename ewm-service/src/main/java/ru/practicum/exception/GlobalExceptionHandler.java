@@ -19,6 +19,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handle(ValidationException e) {
+        log.warn(e.getMessage());
+        return formError(HttpStatus.BAD_REQUEST, e);
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handleOtherExceptions(Exception e) {
         log.warn(e.getMessage());

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.Utils;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.user.dto.UserDto;
@@ -51,7 +52,7 @@ public class UserServiceImpl implements UserService {
         log.info("Received IDS size={}, FROM={}, SIZE={}",
                 ids != null ? ids.size() : null, from, size);
 
-        Pageable pages = getPage(from, size);
+        Pageable pages = Utils.getPage(from, size);
         List<User> users = ids == null ?
                 repository.findAll(pages).toList() :
                 repository.findAllByIdIn(ids, pages);
@@ -69,12 +70,5 @@ public class UserServiceImpl implements UserService {
         repository.deleteById(user.getId());
 
         log.info("Deleted user: {}", user);
-    }
-
-    private PageRequest getPage(Integer from, Integer size) {
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("FROM is below 0 or SIZE is below 1.");
-        }
-        return PageRequest.of(from / size, size, Sort.by("id").ascending());
     }
 }

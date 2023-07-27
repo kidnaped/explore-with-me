@@ -26,6 +26,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handle(IllegalStateException e) {
+        log.warn(e.getMessage());
+        return formError(HttpStatus.CONFLICT, e);
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handleOtherExceptions(Exception e) {
         log.warn(e.getMessage());

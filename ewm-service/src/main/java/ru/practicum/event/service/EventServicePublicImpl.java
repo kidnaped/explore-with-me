@@ -2,22 +2,21 @@ package ru.practicum.event.service;
 
 import org.springframework.stereotype.Service;
 import ru.practicum.event.dto.EventFullDto;
-import ru.practicum.event.dto.EventSearchRequestAdmin;
-import ru.practicum.event.dto.UpdateEventAdminRequest;
+import ru.practicum.event.dto.EventSearchRequestPublic;
 import ru.practicum.event.model.Event;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Service
-public class EventServiceAdminImpl implements EventServiceAdmin {
+public class EventServicePublicImpl implements EventServicePublic {
     @Override
-    public List<EventFullDto> findEvents(EventSearchRequestAdmin searchRequest, HttpServletRequest servletRequest) {
+    public List<EventFullDto> findEvents(EventSearchRequestPublic searchRequest, HttpServletRequest servletRequest) {
         return null;
     }
 
     @Override
-    public EventFullDto update(Long eventId, UpdateEventAdminRequest updateRequest) {
+    public EventFullDto getById(Long eventId, HttpServletRequest servletRequest) {
         return null;
     }
 

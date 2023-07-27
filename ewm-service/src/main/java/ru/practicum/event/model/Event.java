@@ -48,4 +48,14 @@ public class Event {
     private State state;
     private String title;
     private Integer views;
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id=" + id +
+                ", category=" + category +
+                ", state=" + state +
+                ", title='" + title + '\'' +
+                '}';
+    }
 }

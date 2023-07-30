@@ -3,7 +3,6 @@ package ru.practicum.event.service;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.dto.UpdateEventUserRequest;
-import ru.practicum.event.model.Event;
 import ru.practicum.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.request.dto.ParticipationRequestDto;
@@ -27,6 +26,4 @@ public interface EventServicePrivate {
     EventRequestStatusUpdateResult updateRequestStatus(Long userId,
                                                        Long eventId,
                                                        EventRequestStatusUpdateRequest request);
-
-    Event findById(Long eventId);
 }

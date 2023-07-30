@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.repository.EventRepository;
-import ru.practicum.event.service.EventServicePublic;
+import ru.practicum.event.service.EventServiceUtils;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.mapper.RequestMapper;
 import ru.practicum.request.model.ParticipationRequest;
@@ -26,14 +27,14 @@ public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
     private final RequestMapper mapper;
     private final UserService userService;
-    private final EventServicePublic eventService;
+    private final EventServiceUtils eventUtils;
 
     @Override
     public ParticipationRequestDto register(Long userId, Long eventId) {
-        log.info("Received USERID {}, EVENTID {}", userId, eventId);
+        log.info("Received USER ID {}, EVENT ID {}", userId, eventId);
 
         User user = userService.findById(userId);
-        Event event = eventService.findById(eventId);
+        Event event = eventUtils.findById(eventId, eventRepository);
 
         if (userId.equals(event.getInitiator().getId())) {
             throw new IllegalStateException("User " + userId + " trying to request owned event.");
@@ -73,11 +74,27 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto updateRequest(Long userId, Long requestId) {
-        return null;
+        log.info("Received USER ID {}, REQUEST ID {}", userId, requestId);
+
+        ParticipationRequest request = repository.findByIdAndRequesterId(requestId, userId)
+                .orElseThrow(() -> new NotFoundException("Request " + requestId
+                        + " by user " + userId
+                        + " not found."));
+        request.setStatus(Status.CANCELED);
+        request = repository.save(request);
+        log.info("Request {} canceled.", request);
+
+        return mapper.toDto(request);
     }
 
     @Override
     public List<ParticipationRequestDto> findByUserId(Long userId) {
-        return null;
+        log.info("Received USER ID {}", userId);
+
+        User user = userService.findById(userId);
+        List<ParticipationRequest> requests = repository.findAllByRequesterId(user.getId());
+        log.info("Found {} events.", requests.size());
+
+        return mapper.toDto(requests);
     }
 }

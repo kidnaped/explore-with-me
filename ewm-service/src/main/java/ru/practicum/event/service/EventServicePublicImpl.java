@@ -3,7 +3,6 @@ package ru.practicum.event.service;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventSearchRequestPublic;
-import ru.practicum.event.model.Event;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -17,11 +16,6 @@ public class EventServicePublicImpl implements EventServicePublic {
 
     @Override
     public EventFullDto getById(Long eventId, HttpServletRequest servletRequest) {
-        return null;
-    }
-
-    @Override
-    public Event findById(Long eventId) {
         return null;
     }
 }

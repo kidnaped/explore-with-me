@@ -21,4 +21,12 @@ public class EventSearchRequestAdmin {
     private LocalDateTime rangeEnd;
     private Integer from;
     private Integer size;
+
+    @Override
+    public String toString() {
+        return "EventSearchRequestAdmin{" +
+                "rangeStart=" + rangeStart +
+                ", rangeEnd=" + rangeEnd +
+                '}';
+    }
 }

@@ -54,7 +54,7 @@ public class Event {
         return "Event{" +
                 "id=" + id +
                 ", category=" + category +
-                ", state=" + state +
+                ", eventDate=" + eventDate +
                 ", title='" + title + '\'' +
                 '}';
     }

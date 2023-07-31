@@ -4,22 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.Utils;
-import ru.practicum.category.model.Category;
-import ru.practicum.category.service.CategoryServicePublic;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventSearchRequestAdmin;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
-import ru.practicum.event.dto.UpdateEventRequest;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.model.StateActionAdmin;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.statistics.StatSenderService;
-import ru.practicum.location.Location;
-import ru.practicum.location.LocationDto;
-import ru.practicum.location.LocationMapper;
-import ru.practicum.location.LocationRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -32,9 +25,6 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     private final EventRepository repository;
     private final EventServiceUtils utils;
     private final EventMapper mapper;
-    private final CategoryServicePublic categoryService;
-    private final LocationMapper locationMapper;
-    private final LocationRepository locationRepository;
     private final StatSenderService statSender;
 
     @Override
@@ -43,12 +33,12 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
 
         Integer hours = 1;
         StateActionAdmin stateAction = updateRequest.getStateAction();
-        Event event = utils.findById(eventId, repository);
+        Event event = utils.findById(eventId);
         event = mapper.fromDto(event, updateRequest);
 
         utils.beforeEventTimeValidation(event.getEventDate(), hours);
         setEventStateByAdminRequest(updateRequest, stateAction, event);
-        event = repository.save(makeUpdatedEvent(event, updateRequest));
+        event = repository.save(utils.makeUpdatedEvent(event, updateRequest));
         log.info("Event {} updated by Admin.", event);
 
         return mapper.toDto(event);
@@ -73,7 +63,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
                 end,
                 Utils.getPage(searchRequest.getFrom(), searchRequest.getSize()));
 
-        utils.addViews(events, repository);
+        utils.addViews(events);
         log.info("Found {} events.", events.size());
 
         statSender.send(servletRequest);
@@ -100,29 +90,5 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
                     throw new IllegalStateException("Requesting not supported action: " + stateAction);
             }
         }
-    }
-
-    private Event makeUpdatedEvent(Event event, UpdateEventRequest request) {
-        Long categoryId = request.getCategory();
-        LocationDto locationDto = request.getLocation();
-
-        if (categoryId != null) {
-            Category category = categoryService.findById(categoryId);
-            event.setCategory(category);
-        }
-
-        if (locationDto != null) {
-            Location location = locationMapper.fromDto(locationDto);
-            Float lat = location.getLat();
-            Float lon = location.getLon();
-
-            if (locationRepository.existsByLatAndLon(lat, lon)) {
-                location = locationRepository.findByLatAndLon(lat, lon);
-            } else {
-                location = locationRepository.save(location);
-            }
-            event.setLocation(location);
-        }
-        return event;
     }
 }

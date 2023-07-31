@@ -34,7 +34,7 @@ public class RequestServiceImpl implements RequestService {
         log.info("Received USER ID {}, EVENT ID {}", userId, eventId);
 
         User user = userService.findById(userId);
-        Event event = eventUtils.findById(eventId, eventRepository);
+        Event event = eventUtils.findById(eventId);
 
         if (userId.equals(event.getInitiator().getId())) {
             throw new IllegalStateException("User " + userId + " trying to request owned event.");

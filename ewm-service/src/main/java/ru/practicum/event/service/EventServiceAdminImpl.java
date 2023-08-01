@@ -3,6 +3,7 @@ package ru.practicum.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.Utils;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventSearchRequestAdmin;
@@ -27,6 +28,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     private final EventMapper mapper;
     private final StatSenderService statSender;
 
+    @Transactional
     @Override
     public EventFullDto update(Long eventId, UpdateEventAdminRequest updateRequest) {
         log.info("Received EVENT ID {}, UPDATE_REQUEST {}", eventId, updateRequest);
@@ -44,6 +46,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
         return mapper.toDto(event);
     }
 
+    @Transactional
     @Override
     public List<EventFullDto> findEvents(EventSearchRequestAdmin searchRequest, HttpServletRequest servletRequest) {
         log.info("Received search request by Admin {} and HttpServletRequest {}",

@@ -3,6 +3,7 @@ package ru.practicum.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.Utils;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.service.CategoryServiceUtils;
@@ -22,6 +23,10 @@ import ru.practicum.location.LocationRepository;
 import ru.practicum.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.request.dto.ParticipationRequestDto;
+import ru.practicum.request.mapper.RequestMapper;
+import ru.practicum.request.model.ParticipationRequest;
+import ru.practicum.request.model.Status;
+import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.service.UserService;
 
@@ -37,11 +42,14 @@ public class EventServicePrivateImpl implements EventServicePrivate {
     private final StatSenderService statSender;
     private final EventRepository repository;
     private final LocationRepository locationRepository;
+    private final RequestRepository requestRepository;
     private final EventMapper mapper;
     private final LocationMapper locationMapper;
+    private final RequestMapper requestMapper;
     private final EventServiceUtils utils;
     private final CategoryServiceUtils categoryUtils;
 
+    @Transactional
     @Override
     public EventFullDto registerEvent(Long userId, NewEventDto dto) {
         log.info("Received USER_ID {}, NEW_EVENT_DTO {}", userId, dto);
@@ -54,6 +62,7 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         return mapper.toDto(event);
     }
 
+    @Transactional
     @Override
     public EventFullDto updateEvent(Long userId,
                                     Long eventId,
@@ -65,9 +74,7 @@ public class EventServicePrivateImpl implements EventServicePrivate {
 
         utils.beforeEventTimeValidation(event.getEventDate(), 2);
 
-        if (!event.getInitiator().getId().equals(user.getId())) {
-            throw new IllegalStateException("Can't update not hosted event.");
-        }
+       validateHostOfEvent(event, user);
 
         if (event.getState().equals(State.PUBLISHED)) {
             throw new IllegalStateException("PUBLISHED events can't be changed.");
@@ -93,6 +100,7 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         return mapper.toDto(event);
     }
 
+    @Transactional
     @Override
     public List<EventFullDto> findEvents(Long userId,
                                          Integer from,
@@ -111,10 +119,11 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         return mapper.toDto(events);
     }
 
+    @Transactional
     @Override
-    public EventFullDto findByUsersEventById(Long userId,
-                                             Long eventId,
-                                             HttpServletRequest servletRequest) {
+    public EventFullDto findUsersEventById(Long userId,
+                                           Long eventId,
+                                           HttpServletRequest servletRequest) {
         log.info("Received USER_ID {}, EVENT_ID {}, REQUEST {}",
                 userId, eventId, servletRequest.getMethod());
 
@@ -130,23 +139,66 @@ public class EventServicePrivateImpl implements EventServicePrivate {
     }
 
     @Override
-    public List<ParticipationRequestDto> findRequestsForUsersEvent(Long userId,
-                                                                   Long eventId,
-                                                                   HttpServletRequest servletRequest) {
-        return null;
+    public List<ParticipationRequestDto> findRequestsForUsersEvent(Long userId, Long eventId) {
+        log.info("Received USER_ID {}, EVENT_ID {}", userId, eventId);
+
+        User user = userService.findById(userId);
+        Event event = utils.findById(eventId);
+        if (!repository.existsByIdAndInitiatorId(eventId, userId)) {
+            throw new NotFoundException("Event " + event.getId() + " by user " + user.getId() + " not found.");
+        }
+
+        List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
+        log.info("Found {} participation requests.", requests.size());
+
+        return requestMapper.toDto(requests);
     }
 
     @Override
     public EventRequestStatusUpdateResult updateRequestStatus(Long userId,
                                                               Long eventId,
-                                                              EventRequestStatusUpdateRequest request) {
-        return null;
+                                                              EventRequestStatusUpdateRequest requestDto) {
+        log.info("Received USER_ID {}, EVENT_ID {}, REQUEST {}", userId, eventId, requestDto);
+
+        User user = userService.findById(userId);
+        Event event = utils.findById(eventId);
+
+        validateHostOfEvent(event, user);
+
+        if (event.getConfirmedRequests() + requestDto.getRequestIds().size() > event.getParticipantLimit()) {
+            throw new IllegalStateException("Reached participation limit for this event.");
+        }
+
+        List<ParticipationRequest> requests = requestRepository.findAllByIdIn(requestDto.getRequestIds());
+        requests.forEach(req -> {
+            if (req.getStatus().equals(Status.CONFIRMED)) {
+                throw new IllegalStateException("Participation request has been already approved.");
+            }
+        });
+        requests.forEach(req -> req.setStatus(requestDto.getStatus()));
+
+        event.setConfirmedRequests(event.getConfirmedRequests() + requests.size());
+
+        requestRepository.saveAll(requests);
+        repository.save(event);
+
+        List<ParticipationRequest> confirmedRequests = requestRepository
+                .findAllByEventIdAndStatus(event.getId(), Status.CONFIRMED);
+        List<ParticipationRequest> rejectedRequests = requestRepository
+                .findAllByEventIdAndStatus(event.getId(), Status.REJECTED);
+        log.info("{} participation requests updated.", requestDto.getRequestIds().size());
+
+        return new EventRequestStatusUpdateResult(
+                requestMapper.toDto(confirmedRequests),
+                requestMapper.toDto(rejectedRequests)
+        );
     }
 
     private Event makeFullEvent(User user, NewEventDto dto) {
         utils.beforeEventTimeValidation(dto.getEventDate(), 2);
         Event event = mapper.fromDto(dto);
         Category category = categoryUtils.findById(dto.getCategory());
+
         Location location = locationMapper.fromDto(dto.getLocation());
         Float lat = location.getLat();
         Float lon = location.getLon();
@@ -166,5 +218,11 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         event.setRequestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() : true);
 
         return event;
+    }
+
+    private void validateHostOfEvent(Event event, User user) {
+        if (!event.getInitiator().getId().equals(user.getId())) {
+            throw new IllegalStateException("Can't update not hosted event.");
+        }
     }
 }

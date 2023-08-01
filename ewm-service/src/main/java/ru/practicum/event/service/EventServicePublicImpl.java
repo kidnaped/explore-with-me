@@ -3,6 +3,7 @@ package ru.practicum.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.Utils;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventSearchRequestPublic;
@@ -26,6 +27,7 @@ public class EventServicePublicImpl implements EventServicePublic {
     private final EventMapper mapper;
     private final StatSenderService statSender;
 
+    @Transactional
     @Override
     public List<EventFullDto> findEvents(EventSearchRequestPublic searchRequest, HttpServletRequest servletRequest) {
         log.info("Received public search request {} and HttpServletRequest {}",
@@ -54,6 +56,7 @@ public class EventServicePublicImpl implements EventServicePublic {
         return mapper.toDto(events);
     }
 
+    @Transactional
     @Override
     public EventFullDto getById(Long eventId, HttpServletRequest servletRequest) {
         Event event = utils.findById(eventId);

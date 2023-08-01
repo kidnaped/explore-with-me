@@ -11,17 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface EventServicePrivate {
-    List<EventFullDto> findEvents(Long userId, Integer from, Integer size, HttpServletRequest servletRequest);
-
     EventFullDto registerEvent(Long userId, NewEventDto dto);
-
-    EventFullDto findByUsersEventById(Long userId, Long eventId, HttpServletRequest servletRequest);
 
     EventFullDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest request);
 
-    List<ParticipationRequestDto> findRequestsForUsersEvent(Long userId,
-                                                            Long eventId,
-                                                            HttpServletRequest servletRequest);
+    List<EventFullDto> findEvents(Long userId, Integer from, Integer size, HttpServletRequest servletRequest);
+
+    EventFullDto findUsersEventById(Long userId, Long eventId, HttpServletRequest servletRequest);
+
+    List<ParticipationRequestDto> findRequestsForUsersEvent(Long userId, Long eventId);
 
     EventRequestStatusUpdateResult updateRequestStatus(Long userId,
                                                        Long eventId,

@@ -3,7 +3,6 @@ package ru.practicum.request.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.request.model.Status;
 
 import java.util.List;
 
@@ -11,6 +10,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventRequestStatusUpdateResult {
-    private List<Long> requestIds;
-    private Status status;
+    private List<ParticipationRequestDto> confirmedRequests;
+    private List<ParticipationRequestDto> rejectedRequests;
+
+    @Override
+    public String toString() {
+        return "EventRequestStatusUpdateResult{" +
+                "confirmedRequests=" + confirmedRequests.size() +
+                ", rejectedRequests=" + rejectedRequests.size() +
+                '}';
+    }
 }

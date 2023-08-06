@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class ApiError {
     private final String status;
     private final String reason;
-    private final String message;
+    private final Throwable message;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Utils.FORMAT)
     private final LocalDateTime timestamp;
 }

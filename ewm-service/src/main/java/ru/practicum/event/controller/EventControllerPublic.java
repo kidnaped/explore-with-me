@@ -36,17 +36,16 @@ public class EventControllerPublic {
                                          @RequestParam(defaultValue = "10") Integer size,
                                          HttpServletRequest servletRequest) {
         logForControllers(servletRequest);
-        EventSearchRequestPublic searchRequest = EventSearchRequestPublic.builder()
-                .text(text)
-                .categories(categories)
-                .paid(paid)
-                .rangeStart(rangeStart)
-                .rangeEnd(rangeEnd)
-                .onlyAvailable(onlyAvailable)
-                .sort(sort)
-                .from(from)
-                .size(size)
-                .build();
+        EventSearchRequestPublic searchRequest = new EventSearchRequestPublic(
+                text,
+                categories,
+                paid,
+                rangeStart,
+                rangeEnd,
+                onlyAvailable,
+                sort,
+                from,
+                size);
         return service.findEvents(searchRequest, servletRequest);
     }
 

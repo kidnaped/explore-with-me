@@ -2,7 +2,6 @@ package ru.practicum.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.dto.Utils;
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class NewEventDto {
     @NotBlank
     @Size(min = 20, max = 2000)
@@ -32,18 +30,10 @@ public class NewEventDto {
     @NotNull
     private LocationDto location;
     private Boolean paid;
-    private Integer participantLimit;
+    private Long participantLimit;
     private Boolean requestModeration;
     @NotBlank
     @Size(min = 3, max = 120)
     private String title;
 
-    @Override
-    public String toString() {
-        return "NewEventDto{" +
-                "category=" + category +
-                ", eventDate=" + eventDate +
-                ", title='" + title + '\'' +
-                '}';
-    }
 }

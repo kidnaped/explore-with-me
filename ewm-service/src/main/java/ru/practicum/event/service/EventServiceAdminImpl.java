@@ -31,7 +31,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     @Transactional
     @Override
     public EventFullDto update(Long eventId, UpdateEventAdminRequest updateRequest) {
-        log.info("Received EVENT ID {}, UPDATE_REQUEST {}", eventId, updateRequest);
+        log.info("Received EVENT ID {}, UPDATE_REQUEST {}", eventId, updateRequest.getTitle());
 
         Integer hours = 1;
         StateActionAdmin stateAction = updateRequest.getStateAction();
@@ -41,7 +41,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
         utils.beforeEventTimeValidation(event.getEventDate(), hours);
         setEventStateByAdminRequest(updateRequest, stateAction, event);
         event = repository.save(utils.makeUpdatedEvent(event, updateRequest));
-        log.info("Event {} updated by Admin.", event);
+        log.info("Event {}, {} updated by Admin.", event.getId(), event.getTitle());
 
         return mapper.toDto(event);
     }
@@ -49,8 +49,8 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     @Transactional
     @Override
     public List<EventFullDto> findEvents(EventSearchRequestAdmin searchRequest, HttpServletRequest servletRequest) {
-        log.info("Received search request by Admin {} and HttpServletRequest {}",
-                searchRequest, servletRequest.getMethod());
+        log.info("Received ADMIN_SEARCH_REQUEST START {}, END {} and HttpServletRequest {}",
+                searchRequest.getRangeEnd(), searchRequest.getRangeEnd(), servletRequest.getMethod());
 
         LocalDateTime start = searchRequest.getRangeStart();
         LocalDateTime end = searchRequest.getRangeEnd();

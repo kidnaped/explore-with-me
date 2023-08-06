@@ -7,7 +7,6 @@ import javax.persistence.*;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "locations")

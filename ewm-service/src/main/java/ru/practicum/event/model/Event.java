@@ -10,10 +10,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
 @Entity
 @Table(name = "events")
 public class Event {
@@ -25,7 +23,7 @@ public class Event {
     @JoinColumn(name = "category_id")
     private Category category;
     @Column(name = "confirmed_requests")
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
     @Column(name = "created_on")
     private LocalDateTime createdOn;
     private String description;
@@ -39,7 +37,7 @@ public class Event {
     private Location location;
     private Boolean paid;
     @Column(name = "participant_limit")
-    private Integer participantLimit;
+    private Long participantLimit;
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
     @Column(name = "request_moderation")
@@ -47,15 +45,5 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private State state;
     private String title;
-    private Integer views;
-
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id=" + id +
-                ", category=" + category +
-                ", eventDate=" + eventDate +
-                ", title='" + title + '\'' +
-                '}';
-    }
+    private Long views;
 }

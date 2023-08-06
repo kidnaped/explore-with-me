@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
                 dto.getId(), dto.getName(), dto.getEmail());
 
         User user = repository.save(mapper.fromDto(dto));
-        log.info("Registered user: {}", user);
+        log.info("Registered user: {}, {}", user.getId(), user.getName());
 
         return mapper.toDto(user);
     }
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
         User user = repository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with requested ID not found."));
-        log.info("Found user = {}", user);
+        log.info("Found user = {}, {}", user.getId(), user.getName());
 
         return user;
     }
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
                 repository.findAllByIdIn(ids, pages);
         log.info("Found {} users.", users.size());
 
-        return mapper.tpDto(users);
+        return mapper.toDto(users);
     }
 
     @Transactional
@@ -66,6 +66,6 @@ public class UserServiceImpl implements UserService {
         User user = findById(userId);
         repository.deleteById(user.getId());
 
-        log.info("Deleted user: {}", user);
+        log.info("Deleted user: {}, {}", user.getId(), user.getName());
     }
 }

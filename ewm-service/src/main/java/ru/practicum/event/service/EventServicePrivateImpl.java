@@ -52,12 +52,14 @@ public class EventServicePrivateImpl implements EventServicePrivate {
     @Transactional
     @Override
     public EventFullDto registerEvent(Long userId, NewEventDto dto) {
-        log.info("Received USER_ID {}, NEW_EVENT_DTO {}", userId, dto);
+        log.info("Received USER_ID {}, NEW_EVENT_DTO {}", userId, dto.getTitle());
+
+        utils.beforeEventTimeValidation(dto.getEventDate(), 2);
 
         User user = userService.findById(userId);
         Event event = makeFullEvent(user, dto);
         event = repository.save(event);
-        log.info("Event registered: {}.", event);
+        log.info("Event registered: {}, {}.", event.getId(), event.getTitle());
 
         return mapper.toDto(event);
     }
@@ -89,13 +91,11 @@ public class EventServicePrivateImpl implements EventServicePrivate {
                 case CANCEL_REVIEW:
                     event.setState(State.CANCELED);
                     break;
-                default:
-                    throw new IllegalStateException("Requesting not supported action: " + stateAction);
             }
         }
 
         event = repository.save(utils.makeUpdatedEvent(event, request));
-        log.info("Updated event: {}", event);
+        log.info("Updated event: {}, {}", event.getId(), event.getTitle());
 
         return mapper.toDto(event);
     }
@@ -132,7 +132,7 @@ public class EventServicePrivateImpl implements EventServicePrivate {
                 .orElseThrow(() -> new NotFoundException("Event by user " + user.getId() + " not found."));
 
         utils.addViews(List.of(event));
-        log.info("Event {} found.", event);
+        log.info("Event {}, {} found.", event.getId(), event.getTitle());
 
         statSender.send(servletRequest);
         return mapper.toDto(event);
@@ -195,7 +195,7 @@ public class EventServicePrivateImpl implements EventServicePrivate {
     }
 
     private Event makeFullEvent(User user, NewEventDto dto) {
-        utils.beforeEventTimeValidation(dto.getEventDate(), 2);
+
         Event event = mapper.fromDto(dto);
         Category category = categoryUtils.findById(dto.getCategory());
 
@@ -210,9 +210,9 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         event.setLocation(location);
         event.setCategory(category);
         event.setCreatedOn(LocalDateTime.now());
-        event.setConfirmedRequests(0);
+        event.setConfirmedRequests(0L);
         event.setState(State.PENDING);
-        event.setViews(0);
+        event.setViews(0L);
         event.setPaid(dto.getPaid() != null ? dto.getPaid() : false);
         event.setParticipantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0);
         event.setRequestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() : true);

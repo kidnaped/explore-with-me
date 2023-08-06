@@ -12,12 +12,4 @@ import java.util.List;
 public class EventRequestStatusUpdateResult {
     private List<ParticipationRequestDto> confirmedRequests;
     private List<ParticipationRequestDto> rejectedRequests;
-
-    @Override
-    public String toString() {
-        return "EventRequestStatusUpdateResult{" +
-                "confirmedRequests=" + confirmedRequests.size() +
-                ", rejectedRequests=" + rejectedRequests.size() +
-                '}';
-    }
 }

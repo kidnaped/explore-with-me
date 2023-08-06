@@ -2,10 +2,16 @@ package ru.practicum.compilation.dto;
 
 import lombok.*;
 
-@EqualsAndHashCode(callSuper = true)
+import javax.validation.constraints.Size;
+import java.util.Set;
+
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class UpdateCompilationRequest extends NewCompilationDto {
+public class UpdateCompilationRequest {
+    private Set<Long> events;
+    @Size(min = 1, max = 50)
+    private String title;
+    private boolean pinned;
 }

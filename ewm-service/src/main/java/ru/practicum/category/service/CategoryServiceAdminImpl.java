@@ -26,7 +26,7 @@ public class CategoryServiceAdminImpl implements CategoryServiceAdmin {
         log.info("Received dto with NAME {}", dto.getName());
 
         Category category = repository.save(mapper.fromDto(dto));
-        log.info("Category registered: {}", category);
+        log.info("Category registered: {}, {}", category.getId(), category.getName());
 
         return mapper.toDto(category);
     }
@@ -34,11 +34,11 @@ public class CategoryServiceAdminImpl implements CategoryServiceAdmin {
     @Transactional
     @Override
     public CategoryDto update(Long catId, NewCategoryDto dto) {
-        log.info("Received dto {} and category ID {}", dto, catId);
+        log.info("Received DTO {} and CATEGORY_ID {}", dto, catId);
 
         Category category = utils.findById(catId);
         category = repository.save(mapper.fromDto(category, dto));
-        log.info("Category updated: {}", category);
+        log.info("Category updated: {}, {}", category.getId(), category.getName());
 
         return mapper.toDto(category);
     }
@@ -46,7 +46,7 @@ public class CategoryServiceAdminImpl implements CategoryServiceAdmin {
     @Transactional
     @Override
     public void deleteById(Long catId) {
-        log.info("Received category ID {}", catId);
+        log.info("Received CATEGORY_ID {}", catId);
 
         Category category = utils.findById(catId);
         if (eventRepo.existsByCategory(category)) {

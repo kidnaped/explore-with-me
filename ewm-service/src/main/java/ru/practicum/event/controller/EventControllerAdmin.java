@@ -2,6 +2,7 @@ package ru.practicum.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.Utils;
 import ru.practicum.event.dto.EventFullDto;
@@ -22,6 +23,7 @@ import static ru.practicum.Utils.logForControllers;
 @RestController
 @RequestMapping("/admin/events")
 @RequiredArgsConstructor
+@Validated
 public class EventControllerAdmin {
     private final EventServiceAdmin service;
 
@@ -45,15 +47,14 @@ public class EventControllerAdmin {
                                          @RequestParam(defaultValue = "10") Integer size,
                                          HttpServletRequest servletRequest) {
         logForControllers(servletRequest);
-        EventSearchRequestAdmin searchRequest = EventSearchRequestAdmin.builder()
-                .users(users)
-                .states(states)
-                .categories(categories)
-                .rangeStart(rangeStart)
-                .rangeEnd(rangeEnd)
-                .from(from)
-                .size(size)
-                .build();
+        EventSearchRequestAdmin searchRequest = new EventSearchRequestAdmin(
+                users,
+                states,
+                categories,
+                rangeStart,
+                rangeEnd,
+                from,
+                size);
         return service.findEvents(searchRequest, servletRequest);
     }
 }

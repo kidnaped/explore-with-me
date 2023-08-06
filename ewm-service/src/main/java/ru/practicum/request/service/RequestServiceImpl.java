@@ -3,6 +3,7 @@ package ru.practicum.request.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.repository.EventRepository;
@@ -29,6 +30,7 @@ public class RequestServiceImpl implements RequestService {
     private final UserService userService;
     private final EventServiceUtils eventUtils;
 
+    @Transactional
     @Override
     public ParticipationRequestDto register(Long userId, Long eventId) {
         log.info("Received USER ID {}, EVENT ID {}", userId, eventId);
@@ -48,9 +50,9 @@ public class RequestServiceImpl implements RequestService {
             throw new IllegalStateException("Event " + eventId + " is not published.");
         }
 
-        if (!event.getParticipantLimit().equals(0)
+        if (!event.getParticipantLimit().equals(0L)
                 && event.getParticipantLimit().equals(event.getConfirmedRequests())) {
-            throw new IllegalStateException("Event " + event + " reached participant limit.");
+            throw new IllegalStateException("Event " + event.getId() + " reached participant limit.");
         }
 
         ParticipationRequest request = ParticipationRequest.builder()
@@ -60,18 +62,19 @@ public class RequestServiceImpl implements RequestService {
                 .created(LocalDateTime.now())
                 .build();
 
-        if (!event.getRequestModeration() || event.getParticipantLimit().equals(0)) {
+        if (!event.getRequestModeration() || event.getParticipantLimit().equals(0L)) {
             request.setStatus(Status.CONFIRMED);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         }
 
         request = repository.save(request);
-        log.info("Request {} registered.", request);
+        log.info("Request {} registered.", request.getId());
 
         return mapper.toDto(request);
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto updateRequest(Long userId, Long requestId) {
         log.info("Received USER ID {}, REQUEST ID {}", userId, requestId);
@@ -82,7 +85,7 @@ public class RequestServiceImpl implements RequestService {
                         + " not found."));
         request.setStatus(Status.CANCELED);
         request = repository.save(request);
-        log.info("Request {} canceled.", request);
+        log.info("Request {} canceled.", request.getId());
 
         return mapper.toDto(request);
     }

@@ -4,9 +4,12 @@ services:
     build:
       context: ./stats-service/stats-server
       dockerfile: Dockerfile
+    image: stats-image
     container_name: stats-container
     ports:
       - "9090:9090"
+    depends_on:
+      - stats-db
     environment:
       - spring.datasource.url=jdbc:postgresql://stats-db:5432/ewmstats
       - spring.datasource.user=ewmstatsadmin
@@ -18,6 +21,7 @@ services:
     ports:
       - "6541:5432"
     environment:
+      - TZ=Europe/Moscow
       - POSTGRES_DB=ewmstats
       - POSTGRES_USER=ewmstatsadmin
       - POSTGRES_PASSWORD=!0230!
@@ -26,6 +30,7 @@ services:
     build:
       context: ./ewm-service
       dockerfile: Dockerfile
+    image: ewm-image
     container_name: evm-service-container
     ports:
       - "8080:8080"
@@ -43,6 +48,7 @@ services:
     ports:
       - "6542:5432"
     environment:
+      - TZ=Europe/Moscow
       - POSTGRES_DB=ewmservice
       - POSTGRES_USER=ewmserviceadmin
       - POSTGRES_PASSWORD=!1341!

@@ -18,22 +18,13 @@ public class ParticipationRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "requester_id")
     private User requester;
     @Enumerated(EnumType.STRING)
     private Status status;
     LocalDateTime created;
-
-    @Override
-    public String toString() {
-        return "ParticipationRequest{" +
-                "id=" + id +
-                ", status=" + status +
-                ", created=" + created +
-                '}';
-    }
 }

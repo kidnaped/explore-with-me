@@ -7,7 +7,6 @@ import javax.persistence.*;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
@@ -17,12 +16,4 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-
-    @Override
-    public String toString() {
-        return "Category{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }

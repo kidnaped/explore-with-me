@@ -31,7 +31,7 @@ public class EventServiceUtils {
     }
 
     protected void addViews(List<Event> events) {
-        events.forEach(event -> event.setViews(event.getViews() == null ? 1 : event.getViews() + 1));
+        events.forEach(event -> event.setViews(+1L));
         repository.saveAll(events);
     }
 

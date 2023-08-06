@@ -20,13 +20,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     boolean existsByIdAndInitiatorId(Long eventId, Long userId);
 
     @Query("select e from Event as e " +
-            "where (e.initiator in :users or :users = null) " +
-            "and (e.state in :states or :states = null) " +
-            "and (:rangeStart != null and :rangeEnd != null) " +
-            "and (e.eventDate between :rangeStart and :rangeEnd) " +
-            "or (:rangeStart = null and e.eventDate < :rangeEnd) " +
-            "or (:rangeEnd = null and e.eventDate > :rangeStart) " +
-            "or (:rangeStart != null and :rangeEnd != null)")
+            "where (e.initiator.id in :users OR :users = null) " +
+            "and (e.state in :states OR :states = null) " +
+            "and (e.category.id in :categories OR :categories = null) " +
+            "and ((cast(:rangeStart as date) != null and cast(:rangeStart as date) != null " +
+            "and e.eventDate between cast(:rangeStart as date) and cast(:rangeEnd as date)) " +
+            "or (cast(:rangeStart as date) = null and e.eventDate < cast(:rangeEnd as date)) " +
+            "or (cast(:rangeEnd as date) = null and e.eventDate > cast(:rangeStart as date)) " +
+            "or (cast(:rangeStart as date) = null and cast(:rangeStart as date) = null)) ")
     List<Event> findByParameters(@Param("users") Set<Long> users,
                                  @Param("states") Set<State> states,
                                  @Param("categories") Set<Long> categories,
@@ -34,20 +35,20 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                  @Param("rangeEnd") LocalDateTime rangeEnd,
                                  Pageable pageable);
 
-    @Query("select e from Event as e " +
-            "where lower(e.annotation) like lower(concat('%', :text, '%')) " +
+    @Query(" select e from Event as e " +
+            "where (lower(e.annotation) like lower(concat('%', :text, '%')) " +
             "or lower(e.description) like lower(concat('%', :text, '%')) " +
-            "or lower(e.title) like lower(concat('%', :text, '%')) " +
-            "or :text = null " +
-            "and e.category.id in :categories or :categories = null " +
-            "and e.paid = :paid or :paid = null " +
-            "and (:rangeStart != null and :rangeEnd != null) " +
-            "and (e.eventDate between :rangeStart and :rangeEnd) " +
-            "or (:rangeStart = null and e.eventDate < :rangeEnd) " +
-            "or (:rangeEnd = null and e.eventDate > :rangeStart) " +
-            "or (:rangeStart != null and :rangeEnd != null) " +
-            "and e.confirmedRequests < e.participantLimit or :onlyAvailable = null " +
-            "and e.state = 'PUBLISHED' " +
+            "or lower(e.title) like lower(concat('%', :text, '%'))" +
+            "or :text = null) " +
+            "and (e.category.id in :categories or :categories = null) " +
+            "and (e.paid = :paid or :paid = null) " +
+            "and ((cast(:rangeStart as date) != null and cast(:rangeStart as date) != null " +
+            "and e.eventDate between cast(:rangeStart as date) and cast(:rangeEnd as date) ) " +
+            "or (cast(:rangeStart as date) = null and e.eventDate < cast(:rangeEnd as date) )" +
+            "or (cast(:rangeEnd as date) = null and e.eventDate > cast(:rangeStart as date) )" +
+            "or (cast(:rangeStart as date) = null and cast(:rangeStart as date) = null) " +
+            "and (e.confirmedRequests < e.participantLimit or :onlyAvailable = null)) " +
+            "and (e.state = 'PUBLISHED') " +
             "order by :sort")
     List<Event> findByParameters(@Param("text") String text,
                                  @Param("categories") Set<Long> categories,

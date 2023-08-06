@@ -13,12 +13,4 @@ import java.util.List;
 public class EventRequestStatusUpdateRequest {
     private List<Long> requestIds;
     private Status status;
-
-    @Override
-    public String toString() {
-        return "EventRequestStatusUpdateRequest{" +
-                "requestIds=" + requestIds.size() +
-                ", status=" + status +
-                '}';
-    }
 }

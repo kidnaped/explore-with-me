@@ -30,8 +30,8 @@ public class EventServicePublicImpl implements EventServicePublic {
     @Transactional
     @Override
     public List<EventFullDto> findEvents(EventSearchRequestPublic searchRequest, HttpServletRequest servletRequest) {
-        log.info("Received public search request {} and HttpServletRequest {}",
-                searchRequest, servletRequest.getMethod());
+        log.info("Received PUBLIC_SEARCH_REQUEST {} and HttpServletRequest {}",
+                searchRequest.getText(), servletRequest.getMethod());
 
         LocalDateTime start = searchRequest.getRangeStart();
         LocalDateTime end = searchRequest.getRangeEnd();
@@ -59,6 +59,8 @@ public class EventServicePublicImpl implements EventServicePublic {
     @Transactional
     @Override
     public EventFullDto getById(Long eventId, HttpServletRequest servletRequest) {
+        log.info("Received EVENT_ID {}, SERVLET_REQUEST {}", eventId, servletRequest.getMethod());
+
         Event event = utils.findById(eventId);
 
         if (!event.getState().equals(State.PUBLISHED)) {
@@ -66,7 +68,7 @@ public class EventServicePublicImpl implements EventServicePublic {
         }
 
         utils.addViews(List.of(event));
-        log.info("Event {} is found.", event);
+        log.info("Event {}, {} is found.", event.getId(), event.getTitle());
 
         statSender.send(servletRequest);
         return mapper.toDto(event);

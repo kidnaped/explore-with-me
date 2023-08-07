@@ -23,11 +23,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "where (e.initiator.id in :users OR :users = null) " +
             "and (e.state in :states OR :states = null) " +
             "and (e.category.id in :categories OR :categories = null) " +
-            "and ((cast(:rangeStart as date) != null and cast(:rangeStart as date) != null " +
+            "and ((cast(:rangeStart as date) != null and cast(:rangeEnd as date) != null " +
             "and e.eventDate between cast(:rangeStart as date) and cast(:rangeEnd as date)) " +
             "or (cast(:rangeStart as date) = null and e.eventDate < cast(:rangeEnd as date)) " +
             "or (cast(:rangeEnd as date) = null and e.eventDate > cast(:rangeStart as date)) " +
-            "or (cast(:rangeStart as date) = null and cast(:rangeStart as date) = null)) ")
+            "or (cast(:rangeStart as date) = null and cast(:rangeEnd as date) = null))")
     List<Event> findByParameters(@Param("users") Set<Long> users,
                                  @Param("states") Set<State> states,
                                  @Param("categories") Set<Long> categories,

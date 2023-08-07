@@ -17,7 +17,7 @@ public class CompilationControllerPublic {
     private final CompilationServicePublic service;
 
     @GetMapping
-    public List<CompilationDto> findCompilations(@RequestParam(required = false) Boolean pinned,
+    public List<CompilationDto> findCompilations(@RequestParam(defaultValue = "false") Boolean pinned,
                                                  @RequestParam(defaultValue = "0") Integer from,
                                                  @RequestParam(defaultValue = "10") Integer size,
                                                  HttpServletRequest servletRequest) {

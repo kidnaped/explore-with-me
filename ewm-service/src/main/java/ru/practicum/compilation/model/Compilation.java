@@ -1,6 +1,8 @@
 package ru.practicum.compilation.model;
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.event.model.Event;
 
 import javax.persistence.*;
@@ -22,5 +24,6 @@ public class Compilation {
     @JoinTable(name = "compilation_events",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Event> events;
 }

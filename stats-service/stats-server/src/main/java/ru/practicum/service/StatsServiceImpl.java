@@ -45,9 +45,13 @@ public class StatsServiceImpl implements StatsService {
 
         validateData(request);
 
-        return getViewStatsByUnique(request).stream()
+        List<ViewStats> viewStats = getViewStatsByUnique(request);
+        List<ViewStatsDto> dtos = viewStats.stream()
                 .map(vMapper::toDto)
                 .collect(Collectors.toList());
+        log.info("Found viewStats: {}", viewStats);
+
+        return dtos;
     }
 
     private List<ViewStats> getViewStatsByUnique(ViewStatsRequest request) {

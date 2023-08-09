@@ -33,8 +33,10 @@ public interface EventMapper {
     @Mapping(target = "category", ignore = true)
     Event fromDto(@MappingTarget Event event, UpdateEventUserRequest request);
 
+    @Mapping(target = "views", ignore = true)
     EventFullDto toDto(Event event);
 
+    @Mapping(target = "views", ignore = true)
     EventShortDto toShortDto(Event event);
 
     List<EventFullDto> toDto(Iterable<Event> events);

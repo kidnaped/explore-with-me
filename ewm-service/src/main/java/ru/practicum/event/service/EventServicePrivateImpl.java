@@ -15,7 +15,6 @@ import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.model.StateActionUser;
 import ru.practicum.event.repository.EventRepository;
-import ru.practicum.event.statistics.StatSenderService;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.location.Location;
 import ru.practicum.location.LocationMapper;
@@ -39,7 +38,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventServicePrivateImpl implements EventServicePrivate {
     private final UserService userService;
-    private final StatSenderService statSender;
     private final EventRepository repository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
@@ -100,7 +98,6 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         return mapper.toDto(event);
     }
 
-    @Transactional
     @Override
     public List<EventFullDto> findEvents(Long userId,
                                          Integer from,
@@ -111,15 +108,14 @@ public class EventServicePrivateImpl implements EventServicePrivate {
 
         User user = userService.findById(userId);
         List<Event> events = repository.findAllByInitiatorId(user.getId(), Utils.getPage(from, size));
+        List<EventFullDto> dtos = utils.toFullDtos(events);
 
-        utils.addViews(events);
+        utils.addViews(dtos);
         log.info("Found {} events.", events.size());
 
-        statSender.send(servletRequest);
-        return mapper.toDto(events);
+        return dtos;
     }
 
-    @Transactional
     @Override
     public EventFullDto findUsersEventById(Long userId,
                                            Long eventId,
@@ -130,11 +126,11 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         User user = userService.findById(userId);
         Event event = repository.findByIdAndInitiatorId(eventId, user.getId())
                 .orElseThrow(() -> new NotFoundException("Event by user " + user.getId() + " not found."));
+        EventFullDto dto = mapper.toDto(event);
 
-        utils.addViews(List.of(event));
+        utils.addViews(List.of(dto));
         log.info("Event {}, {} found.", event.getId(), event.getTitle());
 
-        statSender.send(servletRequest);
         return mapper.toDto(event);
     }
 
@@ -212,7 +208,6 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         event.setCreatedOn(LocalDateTime.now());
         event.setConfirmedRequests(0L);
         event.setState(State.PENDING);
-        event.setViews(0L);
         event.setPaid(dto.getPaid() != null ? dto.getPaid() : false);
         event.setParticipantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0);
         event.setRequestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() : true);

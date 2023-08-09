@@ -13,7 +13,6 @@ import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.model.StateActionAdmin;
 import ru.practicum.event.repository.EventRepository;
-import ru.practicum.event.statistics.StatSenderService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -26,7 +25,6 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     private final EventRepository repository;
     private final EventServiceUtils utils;
     private final EventMapper mapper;
-    private final StatSenderService statSender;
 
     @Transactional
     @Override
@@ -46,7 +44,6 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
         return mapper.toDto(event);
     }
 
-    @Transactional
     @Override
     public List<EventFullDto> findEvents(EventSearchRequestAdmin searchRequest, HttpServletRequest servletRequest) {
         log.info("Received ADMIN_SEARCH_REQUEST START {}, END {} and HttpServletRequest {}",
@@ -66,11 +63,12 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
                 end,
                 Utils.getPage(searchRequest.getFrom(), searchRequest.getSize()));
 
-        utils.addViews(events);
+        List<EventFullDto> dtos = utils.toFullDtos(events);
+
+        utils.addViews(dtos);
         log.info("Found {} events.", events.size());
 
-        statSender.send(servletRequest);
-        return mapper.toDto(events);
+        return dtos;
     }
 
     private void setEventStateByAdminRequest(UpdateEventAdminRequest updateRequest, StateActionAdmin stateAction, Event event) {

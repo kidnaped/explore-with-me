@@ -11,10 +11,8 @@ import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.repository.EventRepository;
-import ru.practicum.event.statistics.StatSenderService;
 import ru.practicum.exception.NotFoundException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,13 +23,11 @@ public class EventServicePublicImpl implements EventServicePublic {
     private final EventServiceUtils utils;
     private final EventRepository repository;
     private final EventMapper mapper;
-    private final StatSenderService statSender;
 
-    @Transactional
     @Override
-    public List<EventFullDto> findEvents(EventSearchRequestPublic searchRequest, HttpServletRequest servletRequest) {
-        log.info("Received PUBLIC_SEARCH_REQUEST {} and HttpServletRequest {}",
-                searchRequest.getText(), servletRequest.getMethod());
+    public List<EventFullDto> findEvents(EventSearchRequestPublic searchRequest) {
+        log.info("Received PUBLIC_SEARCH_REQUEST {}",
+                searchRequest.getText());
 
         LocalDateTime start = searchRequest.getRangeStart();
         LocalDateTime end = searchRequest.getRangeEnd();
@@ -48,29 +44,29 @@ public class EventServicePublicImpl implements EventServicePublic {
                 searchRequest.getOnlyAvailable(),
                 searchRequest.getSort(),
                 Utils.getPage(searchRequest.getFrom(), searchRequest.getSize()));
+        List<EventFullDto> dtos = utils.toFullDtos(events);
 
-        utils.addViews(events);
+        utils.addViews(dtos);
         log.info("Found {} events.", events.size());
 
-        statSender.send(servletRequest);
-        return mapper.toDto(events);
+        return dtos;
     }
 
     @Transactional
     @Override
-    public EventFullDto getById(Long eventId, HttpServletRequest servletRequest) {
-        log.info("Received EVENT_ID {}, SERVLET_REQUEST {}", eventId, servletRequest.getMethod());
+    public EventFullDto getById(Long eventId) {
+        log.info("Received EVENT_ID {}", eventId);
 
         Event event = utils.findById(eventId);
 
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException("Event " + eventId + " not found.");
         }
+        EventFullDto dto = mapper.toDto(event);
 
-        utils.addViews(List.of(event));
+        utils.addViews(List.of(dto));
         log.info("Event {}, {} is found.", event.getId(), event.getTitle());
 
-        statSender.send(servletRequest);
-        return mapper.toDto(event);
+        return dto;
     }
 }

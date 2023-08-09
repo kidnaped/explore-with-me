@@ -40,16 +40,20 @@ public class StatsClient {
         log.info("Received request with parameters: START {}, END {}, URIS {}, UNIQUE {}",
                 vsRequest.getStart(), vsRequest.getEnd(), vsRequest.getUris(), vsRequest.getUnique());
 
-        return client.get()
-                .uri(uriBuilder -> uriBuilder.path(STATS)
+        List<ViewStatsDto> dtos = client.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(STATS)
                         .queryParam("start", vsRequest.getStart().format(Utils.DTF))
                         .queryParam("end", vsRequest.getEnd().format(Utils.DTF))
                         .queryParam("uris", vsRequest.getUris())
                         .queryParam("unique", vsRequest.getUnique())
                         .build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToFlux(ViewStatsDto.class)
                 .collectList()
                 .block();
+        log.info("Sending {} ViewStatDtos", dtos);
+        return dtos;
     }
 }

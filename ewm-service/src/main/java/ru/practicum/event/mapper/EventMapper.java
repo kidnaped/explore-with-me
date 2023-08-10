@@ -40,4 +40,6 @@ public interface EventMapper {
     EventShortDto toShortDto(Event event);
 
     List<EventFullDto> toDto(Iterable<Event> events);
+
+    List<EventShortDto> toShortDto(Iterable<Event> events);
 }

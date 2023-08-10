@@ -10,9 +10,13 @@ import ru.practicum.compilation.dto.UpdateCompilationRequest;
 import ru.practicum.compilation.mapper.CompilationMapper;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.compilation.repository.CompilationRepository;
+import ru.practicum.event.model.Event;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.event.service.EventServiceUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class CompilationServiceAdminImpl implements CompilationServiceAdmin {
     private final CompilationMapper mapper;
     private final CompilationServiceUtils utils;
     private final EventRepository eventRepository;
+    private final EventServiceUtils serviceUtils;
 
     @Transactional
     @Override
@@ -37,7 +42,7 @@ public class CompilationServiceAdminImpl implements CompilationServiceAdmin {
         compilation = repository.save(compilation);
         log.info("Compilation created: {}, {}", compilation.getId(), compilation.getTitle());
 
-        return mapper.toDto(compilation);
+        return getCompilationDtoWithViews(compilation);
     }
 
     @Transactional
@@ -55,7 +60,7 @@ public class CompilationServiceAdminImpl implements CompilationServiceAdmin {
         compilation = repository.save(compilation);
         log.info("Compilation updated: {}, {}", compilation.getId(), compilation.getTitle());
 
-        return mapper.toDto(compilation);
+        return getCompilationDtoWithViews(compilation);
     }
 
     @Transactional
@@ -66,5 +71,15 @@ public class CompilationServiceAdminImpl implements CompilationServiceAdmin {
         Compilation compilation = utils.findById(compId);
         repository.deleteById(compilation.getId());
         log.info("Compilation {} deleted.", compId);
+    }
+
+    private CompilationDto getCompilationDtoWithViews(Compilation compilation) {
+        CompilationDto compilationDto = mapper.toDto(compilation);
+
+        if (compilation.getEvents() != null) {
+            List<Event> events = new ArrayList<>(compilation.getEvents());
+            compilationDto.setEvents(new HashSet<>(serviceUtils.makeShortDtosWithViews(events)));
+        }
+        return compilationDto;
     }
 }

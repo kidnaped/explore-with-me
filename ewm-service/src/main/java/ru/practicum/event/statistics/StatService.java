@@ -9,7 +9,7 @@ import ru.practicum.client.StatsClient;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.dto.ViewStatsRequest;
-import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.model.Event;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -34,9 +34,9 @@ public class StatService {
         client.hit(dto);
     }
 
-    public List<ViewStatsDto> retrieve(List<EventFullDto> events) {
+    public List<ViewStatsDto> retrieve(List<Event> events) {
         List<String> uris = events.stream()
-                .map(EventFullDto::getId)
+                .map(Event::getId)
                 .map(id -> "/events/" + id)
                 .collect(Collectors.toList());
 

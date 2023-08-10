@@ -63,9 +63,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
                 end,
                 Utils.getPage(searchRequest.getFrom(), searchRequest.getSize()));
 
-        List<EventFullDto> dtos = utils.toFullDtos(events);
-
-        utils.addViews(dtos);
+        List<EventFullDto> dtos = utils.makeFullDtosWithViews(events);
         log.info("Found {} events.", events.size());
 
         return dtos;

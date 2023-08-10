@@ -108,9 +108,7 @@ public class EventServicePrivateImpl implements EventServicePrivate {
 
         User user = userService.findById(userId);
         List<Event> events = repository.findAllByInitiatorId(user.getId(), Utils.getPage(from, size));
-        List<EventFullDto> dtos = utils.toFullDtos(events);
-
-        utils.addViews(dtos);
+        List<EventFullDto> dtos = utils.makeFullDtosWithViews(events);
         log.info("Found {} events.", events.size());
 
         return dtos;
@@ -126,12 +124,10 @@ public class EventServicePrivateImpl implements EventServicePrivate {
         User user = userService.findById(userId);
         Event event = repository.findByIdAndInitiatorId(eventId, user.getId())
                 .orElseThrow(() -> new NotFoundException("Event by user " + user.getId() + " not found."));
-        EventFullDto dto = mapper.toDto(event);
-
-        utils.addViews(List.of(dto));
+        EventFullDto dto = utils.makeFullDtosWithViews(List.of(event)).get(0);
         log.info("Event {}, {} found.", event.getId(), event.getTitle());
 
-        return mapper.toDto(event);
+        return dto;
     }
 
     @Override

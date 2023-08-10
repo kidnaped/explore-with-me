@@ -6,6 +6,7 @@ import ru.practicum.category.model.Category;
 import ru.practicum.category.service.CategoryServiceUtils;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.UpdateEventRequest;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
@@ -22,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +39,9 @@ public class EventServiceUtils {
                 .orElseThrow(() -> new NotFoundException("Event " + eventId + " not found."));
     }
 
-    protected void addViews(List<EventFullDto> events) {
+    public List<EventFullDto> makeFullDtosWithViews(List<Event> events) {
         List<ViewStatsDto> stats = statService.retrieve(events);
+        List<EventFullDto> eventFullDtos = eventMapper.toDto(events);
         Map<Long, Long> eventsViews = new HashMap<>();
 
         stats.forEach(stat -> {
@@ -48,9 +49,26 @@ public class EventServiceUtils {
             eventsViews.put(eventId, stat.getHits());
         });
 
-        for (EventFullDto event : events) {
-            event.setViews(eventsViews.getOrDefault(event.getId(), 0L));
+        for (EventFullDto eventFullDto : eventFullDtos) {
+            eventFullDto.setViews(eventsViews.getOrDefault(eventFullDto.getId(), 0L));
         }
+        return eventFullDtos;
+    }
+
+    public List<EventShortDto> makeShortDtosWithViews(List<Event> events) {
+        List<ViewStatsDto> stats = statService.retrieve(events);
+        List<EventShortDto> eventShortDtos = eventMapper.toShortDto(events);
+        Map<Long, Long> eventsViews = new HashMap<>();
+
+        stats.forEach(stat -> {
+            Long eventId = Long.parseLong(stat.getUri().split("/", 0)[2]);
+            eventsViews.put(eventId, stat.getHits());
+        });
+
+        for (EventShortDto eventShortDto : eventShortDtos) {
+            eventShortDto.setViews(eventsViews.getOrDefault(eventShortDto.getId(), 0L));
+        }
+        return eventShortDtos;
     }
 
     protected void beforeEventTimeValidation(LocalDateTime eventTime, Integer hours) {
@@ -87,11 +105,5 @@ public class EventServiceUtils {
             event.setLocation(location);
         }
         return event;
-    }
-
-    protected List<EventFullDto> toFullDtos(List<Event> events) {
-        return events.stream()
-                .map(eventMapper::toDto)
-                .collect(Collectors.toList());
     }
 }

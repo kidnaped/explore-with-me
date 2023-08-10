@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.Utils;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventSearchRequestPublic;
-import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.repository.EventRepository;
@@ -22,7 +21,6 @@ import java.util.List;
 public class EventServicePublicImpl implements EventServicePublic {
     private final EventServiceUtils utils;
     private final EventRepository repository;
-    private final EventMapper mapper;
 
     @Override
     public List<EventFullDto> findEvents(EventSearchRequestPublic searchRequest) {
@@ -44,9 +42,7 @@ public class EventServicePublicImpl implements EventServicePublic {
                 searchRequest.getOnlyAvailable(),
                 searchRequest.getSort(),
                 Utils.getPage(searchRequest.getFrom(), searchRequest.getSize()));
-        List<EventFullDto> dtos = utils.toFullDtos(events);
-
-        utils.addViews(dtos);
+        List<EventFullDto> dtos = utils.makeFullDtosWithViews(events);
         log.info("Found {} events.", events.size());
 
         return dtos;
@@ -62,9 +58,7 @@ public class EventServicePublicImpl implements EventServicePublic {
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException("Event " + eventId + " not found.");
         }
-        EventFullDto dto = mapper.toDto(event);
-
-        utils.addViews(List.of(dto));
+        EventFullDto dto = utils.makeFullDtosWithViews(List.of(event)).get(0);
         log.info("Event {}, {} is found.", event.getId(), event.getTitle());
 
         return dto;

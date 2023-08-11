@@ -43,18 +43,26 @@ public class StatsServiceImpl implements StatsService {
         log.info("Received ViewStatsRequest with params: START {}, END {}, URIS {}, UNIQUE {}",
                 request.getStart(), request.getEnd(), request.getUris(), request.getUnique());
 
-        if (request.getStart().isAfter(request.getEnd()) || request.getStart().equals(request.getEnd())) {
-            throw new ValidationException("Start or end time is not valid.");
-        }
+        validateData(request);
 
-        return getViewStatsByUnique(request).stream()
+        List<ViewStats> viewStats = getViewStatsByUnique(request);
+        List<ViewStatsDto> dtos = viewStats.stream()
                 .map(vMapper::toDto)
                 .collect(Collectors.toList());
+        log.info("Found viewStats: {}", viewStats);
+
+        return dtos;
     }
 
     private List<ViewStats> getViewStatsByUnique(ViewStatsRequest request) {
         return request.getUnique() ?
                 repository.getStatsUniqueIp(request.getStart(), request.getEnd(), request.getUris()) :
                 repository.getAllStats(request.getStart(), request.getEnd(), request.getUris());
+    }
+
+    private void validateData(ViewStatsRequest request) {
+        if (request.getStart().isAfter(request.getEnd()) || request.getStart().equals(request.getEnd())) {
+            throw new ValidationException("Start or end time is not valid.");
+        }
     }
 }

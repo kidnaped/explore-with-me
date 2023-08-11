@@ -15,17 +15,17 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "where (lower(c.text) like lower(concat('%', :text, '%')) or :text = null) " +
             "and (c.author.id in :users or :users = null) " +
             "and (c.event.id in :events or :events = null) " +
-            "and ((:rangeStart != null and :rangeEnd != null " +
-            "and c.created between :rangeStart and :rangeEnd) " +
-            "or (:rangeStart = null and c.created < :rangeEnd) " +
-            "or (:rangeEnd = null and c.created > :rangeStart) " +
-            "or (:rangeStart = null and :rangeEnd = null))")
+            "and ((cast(:rangeStart as date) != null and cast(:rangeStart as date) != null " +
+            "and c.created between cast(:rangeStart as date) and cast(:rangeEnd as date)) " +
+            "or (cast(:rangeStart as date) = null and c.created < cast(:rangeEnd as date)) " +
+            "or (cast(:rangeEnd as date) = null and c.created > cast(:rangeStart as date)) " +
+            "or (cast(:rangeStart as date) = null and cast(:rangeEnd as date) = null))")
     List<Comment> findByRequest(@Param("text") String text,
                                 @Param("users") Set<Long> users,
                                 @Param("events") Set<Long> events,
                                 @Param("rangeStart")LocalDateTime rangeStart,
                                 @Param("rangeEnd") LocalDateTime rangeEnd,
-                                Pageable pageable);
+                                Pageable pa);
 
     List<Comment> findAllByAuthorId(Long userId, Pageable pageable);
 

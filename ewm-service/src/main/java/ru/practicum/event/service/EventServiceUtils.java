@@ -77,12 +77,6 @@ public class EventServiceUtils {
         }
     }
 
-    protected void startTimeValidation(LocalDateTime start, LocalDateTime end) {
-        if (end.isBefore(start) || start.equals(end)) {
-            throw new ValidationException("Start time must be not after or equals end time.");
-        }
-    }
-
     protected <T extends UpdateEventRequest> Event makeUpdatedEvent(Event event, T request) {
         Long categoryId = request.getCategory();
         LocationDto locationDto = request.getLocation();

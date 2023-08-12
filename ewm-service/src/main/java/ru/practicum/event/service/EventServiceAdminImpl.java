@@ -52,7 +52,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
         LocalDateTime start = searchRequest.getRangeStart();
         LocalDateTime end = searchRequest.getRangeEnd();
         if (start != null && end != null) {
-            utils.startTimeValidation(start, end);
+            Utils.startTimeValidation(start, end);
         }
 
         List<Event> events = repository.findByParameters(

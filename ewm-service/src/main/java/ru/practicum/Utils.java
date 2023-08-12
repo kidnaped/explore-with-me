@@ -26,4 +26,10 @@ public class Utils {
     public static void logForControllers(HttpServletRequest request) {
         log.info("Received request from {} to {}", request.getRequestURI(), request.getRemoteAddr());
     }
+
+    public static void startTimeValidation(LocalDateTime start, LocalDateTime end) {
+        if (end.isBefore(start) || start.equals(end)) {
+            throw new ValidationException("Start time must be not after or equals end time.");
+        }
+    }
 }
